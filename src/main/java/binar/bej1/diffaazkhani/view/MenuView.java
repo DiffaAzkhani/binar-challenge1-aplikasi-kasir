@@ -6,6 +6,7 @@ import binar.bej1.diffaazkhani.model.OrderModel;
 import binar.bej1.diffaazkhani.service.MenuService;
 import binar.bej1.diffaazkhani.service.OrderService;
 
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,43 +28,42 @@ public class MenuView {
                 System.out.println(menu.getId() + ". " + menu.getItemsName() + " - $" + menu.getPrice());
             }
             System.out.println("0. Kembali ke Menu Utama           ");
-
             System.out.print("=> ");
-            int menuId = scanner.nextInt();
 
-            if (menuId == 0) {
-                break;
-            }
-
-
-            MenuModel selectedMenu = null;
-            try {
-                selectedMenu = menuService.getMenuById(menuId);
-            } catch (Exception e) {
-                System.out.println("Terjadi kesalahan dalam mendapatkan menu. Silakan coba lagi.");
-            }
-//            MenuModel selectedMenu = menuService.getMenuById(menuId);
-
-
-            if (selectedMenu != null) {
-                System.out.print("Masukkan jumlah pesanan: ");
-                int quantity = scanner.nextInt();
-
-                // Mendapatkan pesanan yang sedang aktif dari orderService
-                OrderModel currentOrder = orderService.getCurrentOrder();
-
-                // Memeriksa apakah ada pesanan yang aktif atau belum
-                if (currentOrder == null) {
-                    // Jika tidak ada, buat pesanan baru
-                    currentOrder = new OrderModel();
-                    orderService.addOrder(currentOrder);
+            // Handle error untuk
+            try{
+                int menuId = scanner.nextInt();
+                if (menuId == 0) {
+                    break;
                 }
 
-                // Menambahkan item pesanan ke pesanan yang sedang aktif
-                orderService.addItemToOrder(currentOrder.getId(), selectedMenu, quantity);
-                System.out.println("Pesanan berhasil ditambahkan ke keranjang.");
-            } else {
-                System.out.println("Menu tidak ditemukan.");
+                MenuModel selectedMenu = menuService.getMenuById(menuId);
+                if (selectedMenu != null) {
+                    System.out.print("Masukkan jumlah pesanan (" + selectedMenu.getItemsName() + " ) : ");
+                    int quantity = scanner.nextInt();
+
+                    // Mendapatkan pesanan yang sedang aktif dari orderService
+                    OrderModel currentOrder = orderService.getCurrentOrder();
+
+                    // Memeriksa apakah ada pesanan yang aktif atau belum
+                    if (currentOrder == null) {
+                        // Jika tidak ada, buat pesanan baru
+                        currentOrder = new OrderModel();
+                        orderService.addOrder(currentOrder);
+                    }
+
+                    // Menambahkan item pesanan ke pesanan yang sedang aktif
+                    orderService.addItemToOrder(currentOrder.getId(), selectedMenu, quantity);
+                    System.out.println("Pesanan berhasil ditambahkan ke keranjang.");
+                } else {
+                    System.out.println("Menu tidak ditemukan.");
+                }
+            }catch (InputMismatchException e){
+                System.out.println("Input tidak valid");
+                // membersihkan baris baru
+                scanner.nextLine();
+            }catch (NumberFormatException  e) {
+                System.out.println("Input tidak valid. Silakan masukkan nomor yang sesuai.");
             }
         }
     }

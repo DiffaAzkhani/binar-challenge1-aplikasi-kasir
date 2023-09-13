@@ -22,7 +22,12 @@ public class OrderServiceImpl implements OrderService {
     public void addItemToOrder(int orderId, MenuModel menu, int quantity) {
         OrderModel order = getOrderById(orderId);
         if (order != null) {
-            order.addOrderItem(menu, quantity);
+            if (order.getMenuModels() == null) {
+                order.setMenuModels(new ArrayList<>());
+                order.setOrderQuantities(new ArrayList<>());
+            }
+            order.getMenuModels().add(menu);
+            order.getOrderQuantities().add(quantity);
         }
     }
 
