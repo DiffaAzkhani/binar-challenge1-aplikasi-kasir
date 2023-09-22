@@ -58,8 +58,7 @@ public class Main {
                 }
             }
         }catch (Exception e){
-            System.out.println("Pilihan tidak valid. Silakan pilih lagi : ");
-            e.printStackTrace();
+            System.out.println("Pilihan tidak valid. Silakan pilih lagi");
         }
         scanner.close();
     }
