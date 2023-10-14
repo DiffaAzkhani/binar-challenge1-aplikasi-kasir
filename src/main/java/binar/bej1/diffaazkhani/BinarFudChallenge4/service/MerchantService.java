@@ -4,7 +4,7 @@ import binar.bej1.diffaazkhani.BinarFudChallenge4.model.MerchantModel;
 
 public interface MerchantService {
     MerchantModel addMerchant(MerchantModel merchant);
-    MerchantModel deleteMerchant(MerchantModel merchant);
+    MerchantModel deleteMerchant(Long merchantId);
     MerchantModel updateMerchant(MerchantModel merchant);
 }
 
