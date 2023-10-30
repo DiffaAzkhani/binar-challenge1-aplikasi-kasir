@@ -1,13 +1,16 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.model;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "table_merchant")
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class MerchantModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +25,4 @@ public class MerchantModel {
 
     @Column(name = "open")
     private boolean open;
-
-
-    // Relasional ke ProductModel
-    @OneToMany(mappedBy = "merchant")
-    private List<ProductModel> product;
 }

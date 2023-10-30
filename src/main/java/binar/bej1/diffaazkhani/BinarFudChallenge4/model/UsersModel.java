@@ -1,13 +1,16 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.model;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "table_users")
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class UsersModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +26,7 @@ public class UsersModel {
     @Column(name = "password")
     private String password;
 
-    // Relasional ke OrderModel
-    @OneToMany(mappedBy = "users")
-    private List<OrderModel> order;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private UserRoleModel role;
 }

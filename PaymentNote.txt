@@ -1,0 +1,18 @@
+===================================
+BinarFud
+===================================
+
+Terima kasih sudah memesan
+di BinarFud
+
+Mendoan			7		10500.0
+Gado - Gado			4		68000.0
+===================================
+Total				11		78500.0
+
+Pembayaran : BinarCash
+
+===================================
+Simpan struk ini sebagai bukti
+pembayaran
+===================================

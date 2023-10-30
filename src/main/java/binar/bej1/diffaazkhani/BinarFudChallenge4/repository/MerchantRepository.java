@@ -6,10 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MerchantRepository extends JpaRepository<MerchantModel, Long> {
     // Mencari merchant yang buka
-    @Query(nativeQuery = true, value = "SELECT m FROM MerchantModel m WHERE m.open = true")
+    @Query(nativeQuery = true, value = "SELECT * FROM table_merchant m WHERE m.open = true")
     List<MerchantModel> findOpenMerchants();
+
+    Optional<MerchantModel> findMerchantByMerchantName(String merchantName);
 }

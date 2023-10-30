@@ -6,7 +6,7 @@ public interface UsersService {
     UsersModel addUser(UsersModel user);
     UsersModel deleteUser(UsersModel user);
     UsersModel updateUser(UsersModel user);
-    UsersModel getUserByUsername(String username);
+    UsersModel getUserByUsernameAndPassword(String username, String password);
 
 }
 

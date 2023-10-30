@@ -1,12 +1,16 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.model;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "table_product")
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class ProductModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +22,6 @@ public class ProductModel {
 
     @Column(name = "price")
     private double price;
-
-    @Column(name = "merchant_code")
-    private int merchantCode;
 
 
     // Relasional ke MerchantModel

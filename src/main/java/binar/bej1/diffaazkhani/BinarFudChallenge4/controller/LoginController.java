@@ -1,21 +1,33 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.controller;
 
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UserRoleModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.service.UserRoleService;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.service.UsersService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
+import javax.annotation.PostConstruct;
 import java.util.Scanner;
 
+@Controller
 public class LoginController {
-    private Scanner scanner = new Scanner(System.in);
-    private final UsersService usersService;
+    private final Scanner scanner = new Scanner(System.in);
 
+    @Autowired
+    private UsersService usersService;
+
+    @Autowired
+    private UserRoleService userRoleService;
+
+    @Autowired
     private UserController userController;
 
-    public LoginController(UsersService usersService) {
-        this.usersService = usersService;
-    }
+    @Autowired
+    private AdminController adminController;
 
     // Menu piliha login atau register
+    @PostConstruct
     public void mainMenuLoginRegister() {
         System.out.println("=====================================================");
         System.out.println("Selamat datang di Aplikasi Pemesanan Makanan BinarFud");
@@ -23,13 +35,18 @@ public class LoginController {
         System.out.println("=====================================================");
         System.out.println("1. Login");
         System.out.println("2. Register");
-        String pilih = scanner.nextLine();
-        if (pilih.equals("1")) {
-            loginMenu();
-        } else if (pilih.equals("2")) {
-            registerMenu();
-        } else {
-            System.out.println("Pilihan anda salah !");
+        System.out.print("Pilih : ");
+        String choice = scanner.nextLine();
+        switch (choice){
+            case "1":
+                loginMenu();
+                break;
+            case "2":
+                registerMenu();
+                break;
+            default:
+                System.out.println("Pilihan tidak valid!");
+                mainMenuLoginRegister();
         }
     }
 
@@ -39,7 +56,7 @@ public class LoginController {
         System.out.println("Selamat datang di Aplikasi Pemesanan Makanan         ");
         System.out.println("Silakan lakukan registrasi:                          ");
         System.out.println("=====================================================");
-        System.out.print("Masukkan nama pengguna (username):                     ");
+        System.out.print("Masukkan nama pengguna (username):");
         String username = scanner.nextLine();
 
         System.out.print("Masukkan alamat email: ");
@@ -48,18 +65,22 @@ public class LoginController {
         System.out.print("Masukkan kata sandi: ");
         String password = scanner.nextLine();
 
-        UsersModel user = new UsersModel();
-        user.setUsername(username);
-        user.setEmailAddress(email);
-        user.setPassword(password);
+        System.out.print("Masukkan peran (user/admin): ");
+        String roleInput = scanner.nextLine();
+        UserRoleModel role = UserRoleModel.valueOf(roleInput.toUpperCase());
 
-        UsersModel registeredUser = usersService.addUser(user);
+        UsersModel userRegister = UsersModel.builder()
+                .username(username)
+                .emailAddress(email)
+                .password(password)
+                .role(role)
+                .build();
+
+        UsersModel registeredUser = usersService.addUser(userRegister);
 
         if (registeredUser != null) {
             System.out.println("Registrasi berhasil!");
-
-            // logic register
-            loginMenu();
+            mainMenuLoginRegister();
         } else {
             System.out.println("Registrasi gagal! Coba lagi.");
         }
@@ -71,23 +92,35 @@ public class LoginController {
         System.out.println("Selamat datang di Aplikasi Pemesanan Makanan         ");
         System.out.println("Silakan lakukan login:                               ");
         System.out.println("=====================================================");
-        System.out.print("Masukkan nama pengguna (username):                     ");
+        System.out.print("Masukkan nama pengguna (username): ");
         String username = scanner.nextLine();
 
-        System.out.print("Masukkan kata sandi: ");
+        System.out.print("Masukkan kata sandi (password): ");
         String password = scanner.nextLine();
 
-        if (isValidLogin(username, password)) {
+        UserRoleModel role = userRoleService.getUserRoleByUsernameAndPassword(username, password);
+
+        UsersModel userLogin = UsersModel.builder()
+                .username(username)
+                .password(password)
+                .role(role)
+                .build();
+
+        if (isValidLogin(userLogin)) {
             System.out.println("Login berhasil!");
-            userController.mainMenuUser();
+            if (userLogin.getRole() == UserRoleModel.ADMIN){
+                adminController.mainMenuAdmin();
+            } else if (userLogin.getRole() == UserRoleModel.USER) {
+                userController.mainMenuUser();
+            }
         } else {
             System.out.println("Login gagal! Coba lagi.");
         }
     }
 
     // melakukan pengecekan apakah login valid
-    private boolean isValidLogin(String username, String password) {
-        UsersModel user = usersService.getUserByUsername(username);
-        return user != null && user.getPassword().equals(password);
+    private boolean isValidLogin(UsersModel userDataLogin) {
+        UsersModel user = usersService.getUserByUsernameAndPassword(userDataLogin.getUsername(), userDataLogin.getPassword());
+        return user != null;
     }
 }

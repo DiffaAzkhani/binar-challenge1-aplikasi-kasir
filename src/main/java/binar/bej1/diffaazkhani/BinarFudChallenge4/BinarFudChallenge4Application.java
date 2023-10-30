@@ -8,8 +8,5 @@ public class BinarFudChallenge4Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BinarFudChallenge4Application.class, args);
-		System.out.println("Hello World");
-
-		// maaf mas sampai segini dulu besok saya lanjutin dikit2
 	}
 }
