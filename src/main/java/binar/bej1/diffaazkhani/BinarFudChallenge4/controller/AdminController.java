@@ -158,6 +158,7 @@ public class AdminController {
 
         boolean isOpen = status.equals("open");
 
+        // membuat objek untuk menginisialisasi atribut-atribut dari objek merchant
         MerchantModel merchant = MerchantModel.builder()
                 .merchantName(merchantName)
                 .merchantLocation(merchantLocation)
@@ -190,12 +191,14 @@ public class AdminController {
             System.out.println((i + 1) + ". " + merchant.getMerchantName());
         }
 
+        // meminta pengguna untuk memilih berchant yang ingin di edit berdasarkan nomor
         System.out.print("Pilih nomor merchant yang ingin di edit: ");
         int selectedMerchantIndex = Integer.parseInt(scanner.nextLine()) - 1;
 
         if (selectedMerchantIndex >= 0 && selectedMerchantIndex < merchants.size()) {
             MerchantModel merchantToEdit = merchants.get(selectedMerchantIndex);
 
+            // meminta pengguna untuk mengubah status merchant open/close
             System.out.println("=====================================================");
             System.out.println("Ubah status merchant OPEN/CLOSE: " + merchantToEdit.getMerchantName());
             System.out.println("====================================================");
@@ -212,6 +215,7 @@ public class AdminController {
                 System.out.println("Status tidak valid. Menggunakan nilai default 'false'.");
             }
 
+            // melakukan update status pada merchant (open/close)
             merchantToEdit.setOpen(isOpen);
             merchantService.updateMerchant(merchantToEdit);
             System.out.println("Merchant status pada " + merchantToEdit.getMerchantName() + " berhasil diubah.");
@@ -242,6 +246,7 @@ public class AdminController {
             System.out.println((i + 1) + ". " + merchant.getMerchantName());
         }
 
+        // meminta pengguna memilih merchant berdasarkan nomer
         System.out.print("Pilih nomor merchant yang ingin dihapus: ");
         int selectedMerchantIndex = Integer.parseInt(scanner.nextLine()) - 1;
 
@@ -280,18 +285,21 @@ public class AdminController {
             return;
         }
 
+        // mengambil semua data semua merchant
         System.out.println("Pilih merchant berdasarkan nomor:");
         for (int i = 0; i < merchants.size(); i++) {
             MerchantModel merchant = merchants.get(i);
             System.out.println((i + 1) + ". " + merchant.getMerchantName());
         }
 
+        // meminta pengguna memilih merchant berdasarkan nomer
         System.out.print("Pilih nomor merchant: ");
         int selectedMerchantIndex = Integer.parseInt(scanner.nextLine()) - 1;
 
         if (selectedMerchantIndex >= 0 && selectedMerchantIndex < merchants.size()) {
             MerchantModel selectedMerchant = merchants.get(selectedMerchantIndex);
 
+            // meeminta pengguna untuk memasukkan data pada atribut product
             System.out.println("=====================================================");
             System.out.println("Menambahkan product pada merchant: " + selectedMerchant.getMerchantName());
             System.out.println("====================================================");
@@ -300,6 +308,7 @@ public class AdminController {
             System.out.print("Masukkan harga product: ");
             int productPrice = Integer.parseInt(scanner.nextLine());
 
+            // membuat objek untuk menginisialisasi atribut atribut dari objek Product
             ProductModel product = ProductModel.builder()
                     .productName(productName)
                     .price(productPrice)
@@ -411,6 +420,7 @@ public class AdminController {
             System.out.print("Pilih nomor produk yang ingin di edit: ");
             int selectedProductIndex = Integer.parseInt(scanner.nextLine()) - 1;
 
+            // memasukkan input untuk mengubah atribut produk
             if (selectedProductIndex >= 0 && selectedProductIndex < products.size()) {
                 ProductModel productToEdit = products.get(selectedProductIndex);
                 System.out.println("Ubah detail product pada merchant: " + selectedMerchant.getMerchantName());
@@ -419,6 +429,7 @@ public class AdminController {
                 System.out.print("Masukkan harga produk: ");
                 int productPriceEdit = Integer.parseInt(scanner.nextLine());
 
+                // membuat objek untuk menginisialisasi atribut atribut dari objek Product
                 ProductModel product = ProductModel.builder()
                         .productName(productNameEdit)
                         .price(productPriceEdit)
@@ -447,7 +458,7 @@ public class AdminController {
         System.out.print("Masukkan Password User yang ingin diubah: ");
         String password = scanner.nextLine();
 
-        // Cari user berdasarkan username
+        // Cari user berdasarkan username dan password
         UsersModel userToEdit = usersService.getUserByUsernameAndPassword(userName, password);
 
         if (userToEdit != null) {

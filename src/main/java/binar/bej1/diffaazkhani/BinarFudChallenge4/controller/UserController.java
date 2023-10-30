@@ -93,6 +93,7 @@ public class UserController {
                 }
             }
 
+            // menampilkan semua produk dari merchant yang dipilih
             MerchantModel selectedMerchant = openMerchants.get(selectedMerchantIndex);
             showMerchantProducts(selectedMerchant);
         }
@@ -107,7 +108,7 @@ public class UserController {
         System.out.println("Menu : Merchant                   Status : Open      ");
         System.out.println("=====================================================");
 
-        // Daftar produk yang dijual oleh merchant
+        // daftar produk yang dijual oleh merchant
         List<ProductModel> merchantProducts = productService.findProductsByMerchantId(merchant.getMerchantId());
 
         // melakukan pengecekan apakah pada merchant tersebut terdapat produk yang dijual ?
@@ -133,8 +134,7 @@ public class UserController {
                 int quantity = scanner.nextInt();
 
                 if (quantity > 0) {
-                    // Menambahkan produk ke keranjang
-                    addToCart(selectedProduct, quantity);
+                    addToCart(selectedProduct, quantity); // Menambahkan produk ke keranjang
                 } else {
                     System.out.println("Jumlah pesanan tidak valid!");
                 }
@@ -152,7 +152,7 @@ public class UserController {
         // Periksa apakah produk sudah ada di keranjang
         if (cart.containsKey(product)) {
             int existingQuantity = cart.get(product);
-            cart.put(product, existingQuantity + quantity); // Update kuantitas jika produk sudah ada
+            cart.put(product, existingQuantity + quantity); // Update jumlah pesanan jika produk sudah ada
         } else {
             cart.put(product, quantity); // Tambahkan produk ke keranjang jika belum ada
         }
@@ -160,6 +160,7 @@ public class UserController {
         mainMenuUser();
     }
 
+    // menampilkan pesanan yang telah dibuat user
     private void showCart() {
         System.out.println("=====================================================");
         System.out.println("Keranjang Belanja Anda:");
@@ -170,6 +171,7 @@ public class UserController {
             double total = 0;
             int itemNumber = 1;
 
+            // mengambil semua pesanan yang disimpan di dalam keranjang
             for (Map.Entry<ProductModel, Integer> entry : cart.entrySet()) {
                 ProductModel product = entry.getKey();
                 int quantity = entry.getValue();
@@ -244,7 +246,7 @@ public class UserController {
             // Simpan nota ke dalam file teks
             savePaymentNoteToFile();
 
-            // Setelah pesanan dan detailnya telah disimpan, Anda dapat membersihkan keranjang belanja
+            // Menghapus data pesanan setelah checkout
             cart.clear();
         }
     }

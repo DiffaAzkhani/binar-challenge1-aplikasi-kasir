@@ -38,4 +38,3 @@ public class OrderModel {
     @OneToMany(mappedBy = "order")
     private List<OrderDetailModel> orderDetails;
 }
-

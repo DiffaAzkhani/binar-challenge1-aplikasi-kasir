@@ -13,6 +13,4 @@ public interface MerchantRepository extends JpaRepository<MerchantModel, Long> {
     // Mencari merchant yang buka
     @Query(nativeQuery = true, value = "SELECT * FROM table_merchant m WHERE m.open = true")
     List<MerchantModel> findOpenMerchants();
-
-    Optional<MerchantModel> findMerchantByMerchantName(String merchantName);
 }

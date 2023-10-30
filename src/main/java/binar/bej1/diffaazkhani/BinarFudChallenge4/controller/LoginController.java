@@ -69,6 +69,7 @@ public class LoginController {
         String roleInput = scanner.nextLine();
         UserRoleModel role = UserRoleModel.valueOf(roleInput.toUpperCase());
 
+        // membuat objek untuk menginisialisasi atribut atribut dari objek UsersModel (Register)
         UsersModel userRegister = UsersModel.builder()
                 .username(username)
                 .emailAddress(email)
@@ -76,8 +77,10 @@ public class LoginController {
                 .role(role)
                 .build();
 
+        // menambah data user yang baru saja registrasi
         UsersModel registeredUser = usersService.addUser(userRegister);
 
+        // melakukan pengecekan apakah pengguna baru berhasil di tambahkan
         if (registeredUser != null) {
             System.out.println("Registrasi berhasil!");
             mainMenuLoginRegister();
@@ -100,12 +103,14 @@ public class LoginController {
 
         UserRoleModel role = userRoleService.getUserRoleByUsernameAndPassword(username, password);
 
+        // membuat objek untuk menginisialisasi atribut atribut dari objek UsersModel (Login)
         UsersModel userLogin = UsersModel.builder()
                 .username(username)
                 .password(password)
                 .role(role)
                 .build();
 
+        // melakukan pengecekan apakah data pengguna saat login benar, dan disesuaikan dengan role masing masing
         if (isValidLogin(userLogin)) {
             System.out.println("Login berhasil!");
             if (userLogin.getRole() == UserRoleModel.ADMIN){
