@@ -53,7 +53,7 @@ public class UserController {
     )
     public ResponseEntity<Response<String>> login(@RequestBody UsersModel usersModel) {
         try {
-            // Logika untuk melakukan login pengguna
+            // Mengambil user berdasarkan username dan password
             usersService.getUserByUsernameAndPassword(usersModel.getUsername(), usersModel.getPassword());
 
             // Membuat respons dengan status OK dan pesan sukses
