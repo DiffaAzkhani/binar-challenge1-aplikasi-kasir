@@ -4,9 +4,9 @@ import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
 
 public interface UsersService {
     UsersModel addUser(UsersModel user);
-    UsersModel deleteUser(UsersModel user);
-    UsersModel updateUser(UsersModel user);
-    UsersModel getUserByUsernameAndPassword(String username, String password);
+    void deleteUser(Long userId);
+    void updateUser(UsersModel user);
+    void getUserByUsernameAndPassword(String username, String password);
 
 }
 

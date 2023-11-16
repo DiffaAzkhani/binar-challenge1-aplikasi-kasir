@@ -1,8 +1,8 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.controller;
 
-import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.Response;
-import binar.bej1.diffaazkhani.BinarFudChallenge4.service.UsersService;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,114 +11,115 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping(value = "/api/users")
-@Slf4j
-public class UserController {
-    @Autowired
-    private UsersService usersService;
+import java.util.List;
 
-    @Operation(summary = "Create new user")
+@RestController
+@RequestMapping(value = "/api/products")
+@Slf4j
+public class ProductController {
+    @Autowired
+    private ProductService productService;
+
+    @Operation(summary = "Add product")
     @PostMapping(
-            value = "/register",
+            value = "/add-product",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<UsersModel>> register(@RequestBody UsersModel usersModel) {
+    public ResponseEntity<Response<String>> addProduct(@RequestBody ProductModel productModel) {
         try {
-            // Logika untuk melakukan registrasi pengguna
-            UsersModel registeredUser = usersService.addUser(usersModel);
+            // Melakukan penambahan produk
+            productService.addProduct(productModel);
 
-            // Membuat respons dengan status CREATED dan objek UsersModel yang terdaftar
-            Response<UsersModel> response = Response.<UsersModel>builder()
-                    .data(registeredUser)
+            // Membuat respons dengan status CREATED dan pesan sukses
+            Response<String> response = Response.<String>builder()
+                    .data("Produk berhasil ditambahkan")
                     .isSuccess(true)
                     .build();
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             // Exception jika terjadi error
-            log.error("Gagal melakukan registrasi oleh pengguna", e);
+            log.error("Gagal menambahkan produk", e);
 
             // Membuat respons dengan status error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @Operation(summary = "Login user")
-    @PostMapping(
-            value = "/login",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<Response<String>> login(@RequestBody UsersModel usersModel) {
-        try {
-            // Logika untuk melakukan login pengguna
-            usersService.getUserByUsernameAndPassword(usersModel.getUsername(), usersModel.getPassword());
-
-            // Membuat respons dengan status OK dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Login berhasil")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal melakukan login oleh pengguna", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @Operation(summary = "Update user data")
-    @PutMapping(
-            value = "/update-user",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<Response<String>> update(@RequestBody UsersModel updatedUser) {
-        try {
-            // Melakukan perubahan pada user
-            usersService.updateUser(updatedUser);
-
-            // Membuat respons dengan status OK dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Data pengguna berhasil diperbarui")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal memperbarui data pengguna", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @Operation(summary = "Delete user")
+    @Operation(summary = "Delete product")
     @DeleteMapping(
-            value = "/delete-user/{userId}",
+            value = "/delete-product/{productId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<String>> delete(@PathVariable Long userId) {
+    public ResponseEntity<Response<String>> deleteProduct(@PathVariable Long productId) {
         try {
-            // melakukan penghapusan pengguna berdasarkan ID
-            // jika user sedang terhubung dengan pesanan maka tidak dapat dihapus
-            usersService.deleteUser(userId);
+            // Melakukan penghapusan produk berdasarkan ID produk
+            productService.deleteProductByProductId(productId);
 
             // Membuat respons dengan status OK dan pesan sukses
             Response<String> response = Response.<String>builder()
-                    .data("User berhasil dihapus")
+                    .data("Produk berhasil dihapus")
                     .isSuccess(true)
                     .build();
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Gagal menghapus data pengguna", e);
+            // Exception jika terjadi error
+            log.error("Gagal menghapus produk", e);
+
+            // Membuat respons dengan status error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Update product")
+    @PutMapping(
+            value = "/update-product",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> updateProduct(@RequestBody ProductModel productModel) {
+        try {
+            // Logika untuk memperbarui produk
+            productService.updateProduct(productModel);
+
+            // Membuat respons dengan status OK dan pesan sukses
+            Response<String> response = Response.<String>builder()
+                    .data("Produk berhasil diperbarui")
+                    .isSuccess(true)
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Exception jika terjadi error
+            log.error("Gagal memperbarui produk", e);
+
+            // Membuat respons dengan status error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Get products by merchant id")
+    @GetMapping(
+            value = "/get-products/{merchantId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<List<ProductModel>>> getProductsByMerchantId(@PathVariable Long merchantId) {
+        try {
+            // Logika untuk mendapatkan produk berdasarkan ID merchant
+            List<ProductModel> products = productService.findProductsByMerchantId(merchantId);
+
+            // Membuat respons dengan status OK dan data produk
+            Response<List<ProductModel>> response = Response.<List<ProductModel>>builder()
+                    .data(products)
+                    .isSuccess(true)
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Exception jika terjadi error
+            log.error("Gagal mendapatkan produk berdasarkan ID merchant", e);
 
             // Membuat respons dengan status error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

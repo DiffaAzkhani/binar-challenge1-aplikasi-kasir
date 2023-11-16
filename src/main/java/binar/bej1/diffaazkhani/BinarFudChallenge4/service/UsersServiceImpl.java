@@ -18,10 +18,6 @@ public class UsersServiceImpl implements UsersService {
     public UsersModel addUser(UsersModel user) {
         log.info("Menambahkan pengguna: {}", user.getUsername());
 
-        if (user == null) {
-            throw new IllegalArgumentException("Data pengguna tidak boleh null");
-        }
-
         if (user.getUsername() == null || user.getUsername().isEmpty()) {
             throw new IllegalArgumentException("Username tidak boleh kosong");
         }
@@ -30,40 +26,45 @@ public class UsersServiceImpl implements UsersService {
             throw new IllegalArgumentException("Alamat email tidak boleh kosong");
         }
 
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password tidak boleh kosong");
+        }
+
         return usersRepository.save(user);
     }
 
     @Override
-    public UsersModel deleteUser(UsersModel user) {
-        log.info("Menghapus pengguna dengan ID: {}", user.getUserId());
+    public void deleteUser(Long userId) {
+        log.info("Menghapus pengguna dengan ID: {}", userId);
 
         // Cek apakah pengguna dengan ID yang diberikan ada dalam database
-        if (usersRepository.existsById(user.getUserId())){
+        Optional<UsersModel> userOptional = usersRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            UsersModel user = userOptional.get();
             usersRepository.delete(user);
-            return user;
         } else {
-            throw new RuntimeException("Pengguna dengan ID " + user.getUserId() + " tidak ditemukan");
+            throw new RuntimeException("Pengguna dengan ID " + userId + " tidak ditemukan");
         }
     }
 
+
     @Override
-    public UsersModel updateUser(UsersModel user) {
+    public void updateUser(UsersModel user) {
         log.info("Memperbarui pengguna dengan ID: {}", user.getUserId());
 
         // Cek apakah pengguna dengan ID yang diberikan ada dalam database
         if (usersRepository.existsById(user.getUserId())) {
-            return usersRepository.save(user);
+            usersRepository.save(user);
         } else {
             throw new RuntimeException("Pengguna dengan ID " + user.getUserId() + " tidak ditemukan");
         }
     }
 
     @Override
-    public UsersModel getUserByUsernameAndPassword(String username, String password) {
+    public void getUserByUsernameAndPassword(String username, String password) {
         log.info("Mencari pengguna berdasarkan username dan password: username={}, password={}", username, password);
 
         // Menggunakan repository untuk mencari pengguna berdasarkan username
-        Optional<UsersModel> userOptional = usersRepository.findUserByUsernameAndPassword(username, password);
-        return userOptional.orElse(null);
+        usersRepository.findUserByUsernameAndPassword(username, password);
     }
 }

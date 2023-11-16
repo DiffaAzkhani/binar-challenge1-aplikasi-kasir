@@ -1,11 +1,13 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.service;
 
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.MerchantModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +18,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public ProductModel addProduct(ProductModel product) {
+    public void addProduct(ProductModel product) {
         log.info("Menambahkan produk: {}", product);
 
         if (product == null) {
@@ -31,31 +33,29 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Harga produk harus lebih dari 0");
         }
 
-        return productRepository.save(product);
+        productRepository.save(product);
     }
 
     @Override
-    public ProductModel deleteProductByProductId(Long productId) {
+    public void deleteProductByProductId(Long productId) {
         log.info("Menghapus produk dengan ID: {}", productId);
 
         Optional<ProductModel> productOptional = productRepository.findById(productId);
         if (productOptional.isPresent()) {
             ProductModel existingProduct = productOptional.get();
             productRepository.delete(existingProduct);
-            return existingProduct;
         } else {
             throw new IllegalArgumentException("Product dengan ID " + productId + " tidak ditemukan");
         }
     }
 
-
     @Override
-    public ProductModel updateProduct(ProductModel product) {
+    public void updateProduct(ProductModel product) {
         log.info("Mengupdate produk: {}", product);
 
-        // Cek apakah produk dengan ID yang diberikan ada dalam basis data
+        // Cek apakah produk dengan ID yang diberikan ada dalam database
         if (productRepository.existsById(product.getProductId())) {
-            return productRepository.save(product);
+            productRepository.save(product);
         } else {
             throw new RuntimeException("Produk dengan ID " + product.getProductId() + " tidak ditemukan");
         }

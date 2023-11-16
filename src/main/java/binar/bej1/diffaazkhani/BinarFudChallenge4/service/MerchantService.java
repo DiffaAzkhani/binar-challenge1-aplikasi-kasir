@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface MerchantService {
     MerchantModel addMerchant(MerchantModel merchant);
-    MerchantModel deleteMerchantByMerchantId(Long merchantId);
-    MerchantModel updateMerchant(MerchantModel merchant);
+    void deleteMerchantByMerchantId(Long merchantId);
+    void updateMerchant(MerchantModel merchant);
     List<MerchantModel> getAllMerchantIsOpen();
     List<MerchantModel> getAllMerchants();
 }

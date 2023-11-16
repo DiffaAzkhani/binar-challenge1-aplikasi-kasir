@@ -34,4 +34,3 @@ public class OrderDetailModel {
     @JoinColumn(name = "order_id")
     private OrderModel order;
 }
-

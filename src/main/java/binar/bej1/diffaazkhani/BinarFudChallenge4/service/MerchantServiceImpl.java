@@ -28,16 +28,16 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         log.info("Menyimpan Merchant: {}", merchant.getMerchantName());
-        return merchantRepository.save(merchant);
+        merchantRepository.save(merchant);
+        return merchant;
     }
 
     @Override
-    public MerchantModel deleteMerchantByMerchantId(Long merchantId) {
+    public void deleteMerchantByMerchantId(Long merchantId) {
         Optional<MerchantModel> merchantOptional = merchantRepository.findById(merchantId);
         if (merchantOptional.isPresent()) {
             MerchantModel existingMerchant = merchantOptional.get();
             merchantRepository.delete(existingMerchant);
-            return existingMerchant;
         } else {
             log.error("Merchant dengan ID {} tidak ditemukan", merchantId);
             throw new IllegalArgumentException("Merchant dengan ID " + merchantId + " tidak ditemukan");
@@ -45,7 +45,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public MerchantModel updateMerchant(MerchantModel merchant) {
+    public void updateMerchant(MerchantModel merchant) {
         if (merchant == null) {
             log.error("Data Merchant tidak boleh null");
             throw new IllegalArgumentException("Data Merchant tidak boleh null");
@@ -60,7 +60,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantModel existingMerchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> new IllegalArgumentException("Merchant dengan ID " + merchantId + " tidak ditemukan"));
 
-        // Set properti yang diperlukan
+        // Set properti updateMerchant yang diperlukan
         MerchantModel updatedMerchant = MerchantModel.builder()
                 .merchantId(existingMerchant.getMerchantId())
                 .merchantName(merchant.getMerchantName())
@@ -68,7 +68,7 @@ public class MerchantServiceImpl implements MerchantService {
                 .open(merchant.isOpen())
                 .build();
 
-        return merchantRepository.save(updatedMerchant);
+        merchantRepository.save(updatedMerchant);
     }
 
     @Override
@@ -86,7 +86,19 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public List<MerchantModel> getAllMerchants() {
-        log.info("Mengambil semua Merchant");
-        return merchantRepository.findAll();
+        try {
+            log.info("Mengambil semua Merchant");
+            List<MerchantModel> merchants = merchantRepository.findAll();
+
+            if (merchants.isEmpty()) {
+                log.info("Tidak ada data Merchant yang ditemukan.");
+            }
+
+            return merchants;
+        } catch (Exception e) {
+            // exception jika terjadi error saat mengambil data merchant
+            log.error("Error while getting all Merchants", e);
+            throw new RuntimeException("Gagal mengambil data Merchant", e);
+        }
     }
 }

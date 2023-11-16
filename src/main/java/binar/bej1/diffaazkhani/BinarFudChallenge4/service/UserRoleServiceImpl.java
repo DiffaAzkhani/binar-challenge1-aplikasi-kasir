@@ -12,7 +12,6 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserRoleServiceImpl implements UserRoleService{
-
     @Autowired
     UsersRepository usersRepository;
 

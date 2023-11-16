@@ -5,8 +5,8 @@ import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
 import java.util.List;
 
 public interface ProductService {
-    ProductModel addProduct(ProductModel product);
-    ProductModel deleteProductByProductId(Long productId);
-    ProductModel updateProduct(ProductModel product);
+    void addProduct(ProductModel product);
+    void deleteProductByProductId(Long productId);
+    void updateProduct(ProductModel product);
     List<ProductModel> findProductsByMerchantId(Long merchantId);
 }

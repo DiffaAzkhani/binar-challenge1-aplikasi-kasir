@@ -8,6 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface UsersRepository extends JpaRepository<UsersModel, Long> {
-    // Mencari user berdasarkan username
     Optional<UsersModel> findUserByUsernameAndPassword(String userId, String password);
 }

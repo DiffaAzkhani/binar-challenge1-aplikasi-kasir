@@ -12,5 +12,4 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<ProductModel, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM table_product WHERE merchant_id = :merchantId")
     List<ProductModel> findProductByMerchantId(@Param("merchantId") Long merchantId);
-
 }
