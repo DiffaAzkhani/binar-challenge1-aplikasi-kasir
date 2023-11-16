@@ -26,7 +26,7 @@ public class UserController {
     )
     public ResponseEntity<Response<UsersModel>> register(@RequestBody UsersModel usersModel) {
         try {
-            // Logika untuk melakukan registrasi pengguna
+            // Menambahkan pengguna untuk registrasi
             UsersModel registeredUser = usersService.addUser(usersModel);
 
             // Membuat respons dengan status CREATED dan objek UsersModel yang terdaftar
@@ -53,7 +53,7 @@ public class UserController {
     )
     public ResponseEntity<Response<String>> login(@RequestBody UsersModel usersModel) {
         try {
-            // Mengambil user berdasarkan username dan password
+            // Mengambil user dengan username dan password
             usersService.getUserByUsernameAndPassword(usersModel.getUsername(), usersModel.getPassword());
 
             // Membuat respons dengan status OK dan pesan sukses
