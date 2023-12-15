@@ -1,10 +1,16 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.service;
 
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.DeleteUserRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateUserRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.UserResponse;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.UsersRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -15,56 +21,39 @@ public class UsersServiceImpl implements UsersService {
     private UsersRepository usersRepository;
 
     @Override
-    public UsersModel addUser(UsersModel user) {
-        log.info("Menambahkan pengguna: {}", user.getUsername());
+    public UserResponse loadUserByUsername(String username) {
+        log.info("Menambahkan pengguna: {}", username);
 
-        if (user.getUsername() == null || user.getUsername().isEmpty()) {
-            throw new IllegalArgumentException("Username tidak boleh kosong");
-        }
-
-        if (user.getEmailAddress() == null || user.getEmailAddress().isEmpty()) {
-            throw new IllegalArgumentException("Alamat email tidak boleh kosong");
-        }
-
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("Password tidak boleh kosong");
-        }
-
-        return usersRepository.save(user);
+        UsersModel usersModel = usersRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found with username " + username));
+        return UserResponse.build(usersModel);
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        log.info("Menghapus pengguna dengan ID: {}", userId);
+    public void deleteUser(DeleteUserRequest request) {
+        log.info("Menghapus pengguna dengan username: {}", request.getUsername());
 
-        // Cek apakah pengguna dengan ID yang diberikan ada dalam database
-        Optional<UsersModel> userOptional = usersRepository.findById(userId);
+        Optional<UsersModel> userOptional = usersRepository.findUserByUsernameAndPassword(request.getUsername(), request.getPassword());
         if (userOptional.isPresent()) {
             UsersModel user = userOptional.get();
             usersRepository.delete(user);
         } else {
-            throw new RuntimeException("Pengguna dengan ID " + userId + " tidak ditemukan");
+            throw new RuntimeException("Pengguna dengan username " + request.getUsername() + " tidak ditemukan");
         }
     }
 
 
     @Override
-    public void updateUser(UsersModel user) {
-        log.info("Memperbarui pengguna dengan ID: {}", user.getUserId());
+    public UserResponse updateUser(UpdateUserRequest request) {
+        log.info("Memperbarui pengguna dengan usename: {}", request.getUsername());
 
-        // Cek apakah pengguna dengan ID yang diberikan ada dalam database
-        if (usersRepository.existsById(user.getUserId())) {
-            usersRepository.save(user);
-        } else {
-            throw new RuntimeException("Pengguna dengan ID " + user.getUserId() + " tidak ditemukan");
-        }
+        UsersModel usersModel = usersRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Username not found"));
+
+        usersRepository.save(usersModel);
+
+        return UserResponse.build(usersModel);
     }
 
-    @Override
-    public void getUserByUsernameAndPassword(String username, String password) {
-        log.info("Mencari pengguna berdasarkan username dan password: username={}, password={}", username, password);
-
-        // Menggunakan repository untuk mencari pengguna berdasarkan username
-        usersRepository.findUserByUsernameAndPassword(username, password);
-    }
 }

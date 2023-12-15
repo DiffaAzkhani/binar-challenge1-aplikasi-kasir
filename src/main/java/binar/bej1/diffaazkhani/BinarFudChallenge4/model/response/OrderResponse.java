@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrderResponse {
-    private Date date;
+    private Date orderTime;
     private String destinationAddress;
     private boolean completed;
     private List<OrderDetailResponse> detailOrder;

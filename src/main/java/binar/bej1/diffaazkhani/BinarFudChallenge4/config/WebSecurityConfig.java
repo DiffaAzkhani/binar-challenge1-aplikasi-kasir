@@ -1,9 +1,9 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.config;
 
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.enums.UserRoleModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.service.LoginRegisterService;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.service.UsersService;
 import lombok.extern.slf4j.Slf4j;
-//import org.binaracademy.bioskopbackend.enumeration.ERole;
-//import org.binaracademy.bioskopbackend.service.LoginRegisterService;
-//import org.binaracademy.bioskopbackend.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,43 +24,43 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    UsersService usersService;
 
-//    @Autowired
-////    UserDetailsServiceImpl userDetailsService;
-//
-//    @Autowired
-//    AuthEntryPointJwt unauthorizedHandler;
-//
-//    @Autowired
-//    LoginRegisterService loginRegisterService;
+    @Autowired
+    AuthEntryPointJwt unauthorizedHandler;
 
-//    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-//        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//    }
+    @Autowired
+    LoginRegisterService loginRegisterService;
+
+    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(usersService).passwordEncoder(passwordEncoder());
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-//                .authorizeRequests()
-//                .antMatchers("/**", "/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/error").permitAll( )
-//                .antMatchers("/api/invoice/**").hasAuthority(ERole.ROLE_ADMIN.name())
-//                .antMatchers("/api/movies/**").hasAuthority(ERole.ROLE_CUSTOMER.name())
-//                .anyRequest()
-//                .authenticated()
-//                .and()
-//                .oauth2Login().successHandler((request, response, authentication) -> {
-//                    log.info("logged in as user : {}", authentication.getPrincipal());
-//                    if(!loginRegisterService.loginOauth2User(authentication).isPresent()) {
-//                        loginRegisterService.registerOauth2User(authentication);
-//                    };
-//                })
-//                .and()
-//                .csrf(c -> c
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-//                .logout(l -> l.logoutSuccessUrl("/"));
-//        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .authorizeRequests()
+                .antMatchers("/**", "/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/error").permitAll()
+                .antMatchers("/api/admin/**").hasAuthority(UserRoleModel.ROLE_ADMIN.name())
+                .antMatchers("/api/user/**").hasAuthority(UserRoleModel.ROLE_USER.name())
+                .anyRequest()
+                .authenticated()
+                .and()
+                .oauth2Login().successHandler((request, response, authentication) -> {
+                    log.info("logged in as user : {}", authentication.getPrincipal());
+                    if (!loginRegisterService.loginOauth2User(authentication).isPresent()) {
+                        loginRegisterService.registerOauth2User(authentication);
+                    }
+                    ;
+                })
+                .and()
+                .csrf(c -> c
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .logout(l -> l.logoutSuccessUrl("/"));
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
@@ -78,4 +78,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

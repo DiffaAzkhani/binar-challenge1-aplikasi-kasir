@@ -6,13 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class Response<T> {
-    private int code;
-    private T data;
-    private boolean isSuccess;
-    private ErrorResponse error;
-    private String message;
+@AllArgsConstructor
+@Builder
+public class ProductResponse {
+
+    private Long productId;
+
+    private String productName;
+
+    private double price;
+
+    private Long quantity;
+
 }

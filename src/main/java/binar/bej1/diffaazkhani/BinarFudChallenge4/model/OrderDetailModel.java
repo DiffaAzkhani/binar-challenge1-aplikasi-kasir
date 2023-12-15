@@ -18,7 +18,7 @@ public class OrderDetailModel {
     private Long orderDetailId;
 
     @Column(name = "quantity")
-    private int quantity;
+    private Long quantity;
 
     @Column(name = "total_price")
     private double totalPrice;

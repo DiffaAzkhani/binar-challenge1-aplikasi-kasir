@@ -1,13 +1,20 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.service;
 
-import binar.bej1.diffaazkhani.BinarFudChallenge4.model.MerchantModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.AddMerchantRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateMerchantRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.MerchantResponse;
 
 import java.util.List;
 
 public interface MerchantService {
-    MerchantModel addMerchant(MerchantModel merchant);
+    MerchantResponse addMerchant(AddMerchantRequest response);
+
     void deleteMerchantByMerchantId(Long merchantId);
-    void updateMerchant(MerchantModel merchant);
-    List<MerchantModel> getAllMerchantIsOpen();
-    List<MerchantModel> getAllMerchants();
+
+    MerchantResponse updateMerchant(Long id, UpdateMerchantRequest request);
+
+    MerchantResponse getMerchant(Long id);
+
+    List<MerchantResponse> getAllMerchantIsOpen();
+
 }

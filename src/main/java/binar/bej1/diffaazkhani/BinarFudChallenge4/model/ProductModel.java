@@ -23,6 +23,9 @@ public class ProductModel {
     @Column(name = "price")
     private double price;
 
+    @Column(name = "quantity")
+    private Long quantity;
+
 
     // Relasional ke MerchantModel
     @ManyToOne

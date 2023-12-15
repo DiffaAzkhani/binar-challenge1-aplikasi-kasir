@@ -1,5 +1,6 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.model.response;
 
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
 import lombok.*;
 
 @Getter
@@ -8,7 +9,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class OrderDetailResponse {
-    private int quantity;
+
+    private Long quantity;
+
     private double totalPrice;
+
     private String productName;
 }
