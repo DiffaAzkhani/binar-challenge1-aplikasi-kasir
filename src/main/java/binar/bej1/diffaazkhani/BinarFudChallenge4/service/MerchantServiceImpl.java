@@ -1,13 +1,20 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.service;
 
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.MerchantModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.AddMerchantRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateMerchantRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.MerchantResponse;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.MerchantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -16,89 +23,97 @@ public class MerchantServiceImpl implements MerchantService {
     private MerchantRepository merchantRepository;
 
     @Override
-    public MerchantModel addMerchant(MerchantModel merchant) {
-        if (merchant == null) {
-            log.error("Data Merchant tidak boleh null");
-            throw new IllegalArgumentException("Data Merchant tidak boleh null");
-        }
+    public MerchantResponse addMerchant(AddMerchantRequest request) {
+        MerchantModel merchantModel = MerchantModel.builder()
+                .merchantName(request.getMerchantName())
+                .merchantLocation(request.getMerchantLocation())
+                .open(request.isOpen())
+                .build();
 
-        if (merchant.getMerchantName() == null || merchant.getMerchantName().isEmpty()) {
-            log.error("Merchant name tidak boleh kosong");
-            throw new IllegalArgumentException("Merchant name tidak boleh kosong");
-        }
-
-        log.info("Menyimpan Merchant: {}", merchant.getMerchantName());
-        merchantRepository.save(merchant);
-        return merchant;
+        log.info("Berhasil menyimpan Merchant: {}", request.getMerchantName());
+        merchantRepository.save(merchantModel);
+        return toMerchantResponse(merchantModel);
     }
 
     @Override
     public void deleteMerchantByMerchantId(Long merchantId) {
-        Optional<MerchantModel> merchantOptional = merchantRepository.findById(merchantId);
-        if (merchantOptional.isPresent()) {
-            MerchantModel existingMerchant = merchantOptional.get();
-            merchantRepository.delete(existingMerchant);
-        } else {
-            log.error("Merchant dengan ID {} tidak ditemukan", merchantId);
-            throw new IllegalArgumentException("Merchant dengan ID " + merchantId + " tidak ditemukan");
-        }
+        MerchantModel merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> {
+                    log.info("Merchant dengan ID : {}, tidak ditemukan", merchantId);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND);
+                });
+
+        log.info("Merchant dengan ID : {}, ditemukan", merchantId);
+
+        merchantRepository.delete(merchant);
+
+        log.info("Merchant berhasil dihapus");
     }
 
     @Override
-    public void updateMerchant(MerchantModel merchant) {
-        if (merchant == null) {
-            log.error("Data Merchant tidak boleh null");
-            throw new IllegalArgumentException("Data Merchant tidak boleh null");
+    public MerchantResponse updateMerchant(Long id, UpdateMerchantRequest request) {
+
+        MerchantModel merchant = merchantRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.info("Merchant dengan ID : {}, tidak ditemukan", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND);
+                });
+
+        updateMerchantProperties(merchant, request);
+
+        merchant.setOpen(request.isOpen());
+
+        merchantRepository.save(merchant);
+        return toMerchantResponse(merchant);
+    }
+
+    private void updateMerchantProperties(MerchantModel merchantModel, UpdateMerchantRequest request) {
+        if (Objects.nonNull(request.getMerchantName())) {
+            merchantModel.setMerchantName(request.getMerchantName());
         }
 
-        if (merchant.getMerchantName() == null || merchant.getMerchantName().isEmpty()) {
-            log.error("Merchant name tidak boleh kosong");
-            throw new IllegalArgumentException("Merchant name tidak boleh kosong");
+        if (Objects.nonNull(request.getLocation())) {
+            merchantModel.setMerchantLocation(request.getLocation());
         }
 
-        Long merchantId = merchant.getMerchantId();
-        MerchantModel existingMerchant = merchantRepository.findById(merchantId)
-                .orElseThrow(() -> new IllegalArgumentException("Merchant dengan ID " + merchantId + " tidak ditemukan"));
-
-        // Set properti updateMerchant yang diperlukan
-        MerchantModel updatedMerchant = MerchantModel.builder()
-                .merchantId(existingMerchant.getMerchantId())
-                .merchantName(merchant.getMerchantName())
-                .merchantLocation(merchant.getMerchantLocation())
-                .open(merchant.isOpen())
-                .build();
-
-        merchantRepository.save(updatedMerchant);
     }
 
     @Override
-    public List<MerchantModel> getAllMerchantIsOpen() {
+    public MerchantResponse getMerchant(Long id) {
+        MerchantModel merchant = merchantRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.info("Merchant dengan ID : {}, tidak ditemukan", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND);
+                });
+
+        return toMerchantResponse(merchant);
+    }
+
+    @Override
+    public List<MerchantResponse> getAllMerchantIsOpen() {
         log.info("Mengambil daftar Merchant dengan status OPEN");
         Optional<List<MerchantModel>> openMerchantsOptional = Optional.ofNullable(merchantRepository.findOpenMerchants());
 
         if (openMerchantsOptional.isPresent()) {
-            return openMerchantsOptional.get();
+            List<MerchantModel> openMerchants = openMerchantsOptional.get();
+            return toMerchantResponse(openMerchants);
         } else {
             log.error("Merchant dengan status OPEN tidak ditemukan");
             throw new IllegalArgumentException("Merchant dengan status OPEN tidak ditemukan");
         }
     }
 
-    @Override
-    public List<MerchantModel> getAllMerchants() {
-        try {
-            log.info("Mengambil semua Merchant");
-            List<MerchantModel> merchants = merchantRepository.findAll();
+    public MerchantResponse toMerchantResponse(MerchantModel merchant) {
+        return MerchantResponse.builder()
+                .merchantName(merchant.getMerchantName())
+                .location(merchant.getMerchantLocation())
+                .open(merchant.isOpen())
+                .build();
+    }
 
-            if (merchants.isEmpty()) {
-                log.info("Tidak ada data Merchant yang ditemukan.");
-            }
-
-            return merchants;
-        } catch (Exception e) {
-            // exception jika terjadi error saat mengambil data merchant
-            log.error("Error while getting all Merchants", e);
-            throw new RuntimeException("Gagal mengambil data Merchant", e);
-        }
+    private List<MerchantResponse> toMerchantResponse(List<MerchantModel> merchants) {
+        return merchants.stream()
+                .map(this::toMerchantResponse)
+                .collect(Collectors.toList());
     }
 }

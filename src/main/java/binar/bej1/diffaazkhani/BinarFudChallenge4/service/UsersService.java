@@ -1,12 +1,17 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.service;
 
-import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.DeleteUserRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateUserRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.UserResponse;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface UsersService {
-    UsersModel addUser(UsersModel user);
-    void deleteUser(Long userId);
-    void updateUser(UsersModel user);
-    void getUserByUsernameAndPassword(String username, String password);
+public interface UsersService extends UserDetailsService {
+
+    UserResponse loadUserByUsername(String username);
+
+    void deleteUser(DeleteUserRequest request);
+
+    UserResponse updateUser(UpdateUserRequest request);
 
 }
 

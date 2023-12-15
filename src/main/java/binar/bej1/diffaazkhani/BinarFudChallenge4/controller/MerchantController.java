@@ -1,6 +1,8 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.controller;
 
-import binar.bej1.diffaazkhani.BinarFudChallenge4.model.MerchantModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.AddMerchantRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateMerchantRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.MerchantResponse;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.Response;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.service.MerchantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,25 +28,14 @@ public class MerchantController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<MerchantModel>> addMerchant(@RequestBody MerchantModel merchantModel) {
-        try {
-            // Simpan merchant
-            MerchantModel addedMerchant = merchantService.addMerchant(merchantModel);
-
-            // Membuat respons dengan status CREATED dan data MerchantModel
-            Response<MerchantModel> response = Response.<MerchantModel>builder()
-                    .data(addedMerchant)
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            // Tangani exception
-            log.error("Gagal menambahkan merchant", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Response<MerchantResponse>> addMerchant(@RequestBody AddMerchantRequest request) {
+        MerchantResponse merchantResponse = merchantService.addMerchant(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.<MerchantResponse>builder()
+                        .code(HttpStatus.CREATED.value())
+                        .message(HttpStatus.CREATED.getReasonPhrase())
+                        .data(merchantResponse)
+                        .build());
     }
 
     @Operation(summary = "Delete merchant")
@@ -52,78 +43,43 @@ public class MerchantController {
             value = "/delete-merchant/{merchantId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<String>> deleteMerchant(@PathVariable Long merchantId) {
-        try {
-            // Hapus merchant berdasarkan ID
-            merchantService.deleteMerchantByMerchantId(merchantId);
-
-            // Membuat respons dengan status OK dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Merchant berhasil dihapus")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal menghapus merchant", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Response<String> deleteMerchant(@PathVariable Long merchantId) {
+        merchantService.deleteMerchantByMerchantId(merchantId);
+        return Response.<String>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .build();
     }
 
     @Operation(summary = "Update merchant")
     @PutMapping(
-            value = "/update-merchant",
+            path = "/update-merchant",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<String>> updateMerchant(@RequestBody MerchantModel merchantModel) {
-        try {
-            // Update merchant
-            merchantService.updateMerchant(merchantModel);
+    public Response<MerchantResponse> updateMerchant(@PathVariable Long id,
+                                                     @RequestBody UpdateMerchantRequest request) {
+        MerchantResponse merchantResponse = merchantService.updateMerchant(id, request);
 
-            // Membuat respons dengan status OK dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Merchant berhasil diperbarui")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal memperbarui merchant", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return Response.<MerchantResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .data(merchantResponse)
+                .build();
     }
 
-    @Operation(summary = "Get all merchants")
+    @Operation(summary = "Get merchant")
     @GetMapping(
-            value = "/list-merchant",
+            value = "/get-merchant",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<MerchantModel>>> getAllMerchants() {
-        try {
-            // Mendapatkan semua merchant
-            List<MerchantModel> merchantList = merchantService.getAllMerchants();
-
-            // Membuat respons dengan status OK dan data merchantList
-            Response<List<MerchantModel>> response = Response.<List<MerchantModel>>builder()
-                    .data(merchantList)
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal mendapatkan daftar merchant", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public Response<MerchantResponse> getMerchant(@PathVariable Long id) {
+        MerchantResponse merchantResponse = merchantService.getMerchant(id);
+        return Response.<MerchantResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .data(merchantResponse)
+                .build();
     }
 
     @Operation(summary = "Get open merchants")
@@ -131,24 +87,13 @@ public class MerchantController {
             value = "/list-open-merchants",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<MerchantModel>>> getOpenMerchants() {
-        try {
-            // Mendapatkan semua merchant yang masih buka
-            List<MerchantModel> openMerchantList = merchantService.getAllMerchantIsOpen();
+    public Response<List<MerchantResponse>> getOpenMerchants() {
+        List<MerchantResponse> openMerchantList = merchantService.getAllMerchantIsOpen();
 
-            // Membuat respons dengan status OK dan data openMerchantList
-            Response<List<MerchantModel>> response = Response.<List<MerchantModel>>builder()
-                    .data(openMerchantList)
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal mendapatkan daftar merchant yang masih buka", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return Response.<List<MerchantResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .data(openMerchantList)
+                .build();
     }
 }

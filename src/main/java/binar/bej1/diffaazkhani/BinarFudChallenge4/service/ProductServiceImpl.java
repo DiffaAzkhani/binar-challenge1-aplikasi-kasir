@@ -2,14 +2,20 @@ package binar.bej1.diffaazkhani.BinarFudChallenge4.service;
 
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.MerchantModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.AddProductRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateProductRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.ProductResponse;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.MerchantRepository;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -17,55 +23,92 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private MerchantRepository merchantRepository;
+
     @Override
-    public void addProduct(ProductModel product) {
-        log.info("Menambahkan produk: {}", product);
+    public ProductResponse addProduct(AddProductRequest request) {
+        log.info("Menambahkan produk: {}", request.getProductName());
 
-        if (product == null) {
-            throw new IllegalArgumentException("Data produk tidak boleh kosong");
-        }
-
-        if (product.getProductName() == null || product.getProductName().isEmpty()) {
+        if (request.getProductName() == null || request.getProductName().isEmpty()) {
             throw new IllegalArgumentException("Nama produk tidak boleh kosong");
         }
 
-        if (product.getPrice() <= 0) {
+        if (request.getPrice() <= 0) {
             throw new IllegalArgumentException("Harga produk harus lebih dari 0");
         }
 
-        productRepository.save(product);
+        ProductModel productModel = ProductModel.builder()
+                .productName(request.getProductName())
+                .price(request.getPrice())
+                .quantity(request.getQuantity())
+                .build();
+
+        productRepository.save(productModel);
+
+        return toProductResponse(productModel);
     }
 
     @Override
-    public void deleteProductByProductId(Long productId) {
-        log.info("Menghapus produk dengan ID: {}", productId);
+    public void deleteProduct(Long id) {
+        log.info("Menghapus produk dengan ID: {}", id);
 
-        Optional<ProductModel> productOptional = productRepository.findById(productId);
-        if (productOptional.isPresent()) {
-            ProductModel existingProduct = productOptional.get();
-            productRepository.delete(existingProduct);
+        ProductModel productModel = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+        productRepository.delete(productModel);
+    }
+
+    @Override
+    public ProductResponse updateProduct(Long id, UpdateProductRequest request) {
+        log.info("Mengupdate produk: {}", id);
+
+        ProductModel productModel = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        productRepository.save(productModel);
+        return toProductResponse(productModel);
+    }
+
+    @Override
+    public ProductResponse getProduct(Long id) {
+        log.info("Mengambil produk : {}", id);
+
+        ProductModel productModel = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        return toProductResponse(productModel);
+    }
+
+    @Override
+    public List<ProductResponse> getAllProducts(Long merchantId) {
+
+        MerchantModel merchantModel = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Merchant not found"));
+
+        Optional<List<ProductModel>> productModelOptional = Optional.ofNullable(productRepository.findProductByMerchantId(merchantModel.getMerchantId()));
+
+        if (productModelOptional.isPresent()) {
+            List<ProductModel> productsModel = productModelOptional.get();
+            return toProductResponse(productsModel);
         } else {
-            throw new IllegalArgumentException("Product dengan ID " + productId + " tidak ditemukan");
+            log.error("Produk tidak ditemukan pada merchant: {}", merchantModel.getMerchantName());
+            throw new IllegalArgumentException("Produk tidak ditemukan");
         }
     }
 
-    @Override
-    public void updateProduct(ProductModel product) {
-        log.info("Mengupdate produk: {}", product);
-
-        // Cek apakah produk dengan ID yang diberikan ada dalam database
-        if (productRepository.existsById(product.getProductId())) {
-            productRepository.save(product);
-        } else {
-            throw new RuntimeException("Produk dengan ID " + product.getProductId() + " tidak ditemukan");
-        }
+    private ProductResponse toProductResponse(ProductModel productModel) {
+        return ProductResponse.builder()
+                .productId(productModel.getProductId())
+                .productName(productModel.getProductName())
+                .price(productModel.getPrice())
+                .quantity(productModel.getQuantity())
+                .build();
     }
 
-    @Override
-    public List<ProductModel> findProductsByMerchantId(Long merchantId) {
-        log.info("Mencari produk berdasarkan ID merchant: {}", merchantId);
-
-        List<ProductModel> product = productRepository.findProductByMerchantId(merchantId);
-        return product;
+    private List<ProductResponse> toProductResponse(List<ProductModel> products) {
+        return products.stream()
+                .map(this::toProductResponse)
+                .collect(Collectors.toList());
     }
+
 }

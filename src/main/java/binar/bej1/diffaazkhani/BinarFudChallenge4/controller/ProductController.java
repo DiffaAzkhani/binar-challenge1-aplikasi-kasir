@@ -1,6 +1,8 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.controller;
 
-import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.AddProductRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.UpdateProductRequest;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.ProductResponse;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.Response;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,25 +28,15 @@ public class ProductController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<String>> addProduct(@RequestBody ProductModel productModel) {
-        try {
-            // Melakukan penambahan produk
-            productService.addProduct(productModel);
+    public ResponseEntity<Response<ProductResponse>> addProduct(@RequestBody AddProductRequest request) {
+        ProductResponse productResponse = productService.addProduct(request);
 
-            // Membuat respons dengan status CREATED dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Produk berhasil ditambahkan")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal menambahkan produk", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.<ProductResponse>builder()
+                        .code(HttpStatus.CREATED.value())
+                        .message(HttpStatus.CREATED.getReasonPhrase())
+                        .data(productResponse)
+                        .build());
     }
 
     @Operation(summary = "Delete product")
@@ -52,25 +44,13 @@ public class ProductController {
             value = "/delete-product/{productId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<String>> deleteProduct(@PathVariable Long productId) {
-        try {
-            // Melakukan penghapusan produk berdasarkan ID produk
-            productService.deleteProductByProductId(productId);
+    public Response<String> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
 
-            // Membuat respons dengan status OK dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Produk berhasil dihapus")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal menghapus produk", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return Response.<String>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .build();
     }
 
     @Operation(summary = "Update product")
@@ -79,50 +59,43 @@ public class ProductController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<String>> updateProduct(@RequestBody ProductModel productModel) {
-        try {
-            // Logika untuk memperbarui produk
-            productService.updateProduct(productModel);
+    public Response<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody UpdateProductRequest request) {
+        ProductResponse productResponse = productService.updateProduct(id, request);
 
-            // Membuat respons dengan status OK dan pesan sukses
-            Response<String> response = Response.<String>builder()
-                    .data("Produk berhasil diperbarui")
-                    .isSuccess(true)
-                    .build();
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal memperbarui produk", e);
-
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return Response.<ProductResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .data(productResponse)
+                .build();
     }
 
-    @Operation(summary = "Get products by merchant id")
+    @Operation(summary = "Get product")
     @GetMapping(
-            value = "/get-products/{merchantId}",
+            value = "/get-product/{merchantId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<ProductModel>>> getProductsByMerchantId(@PathVariable Long merchantId) {
-        try {
-            // Logika untuk mendapatkan produk berdasarkan ID merchant
-            List<ProductModel> products = productService.findProductsByMerchantId(merchantId);
+    public Response<ProductResponse> getProduct(@PathVariable Long id) {
+        ProductResponse productResponse = productService.getProduct(id);
 
-            // Membuat respons dengan status OK dan data produk
-            Response<List<ProductModel>> response = Response.<List<ProductModel>>builder()
-                    .data(products)
-                    .isSuccess(true)
-                    .build();
+        return Response.<ProductResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .data(productResponse)
+                .build();
+    }
 
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Exception jika terjadi error
-            log.error("Gagal mendapatkan produk berdasarkan ID merchant", e);
+    @Operation(summary = "Get product")
+    @GetMapping(
+            value = "/get-all-products/{merchantId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Response<List<ProductResponse>> getAllProducts(@PathVariable Long merchantId) {
+        List<ProductResponse> productResponse = productService.getAllProducts(merchantId);
 
-            // Membuat respons dengan status error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return Response.<List<ProductResponse>>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .data(productResponse)
+                .build();
     }
 }

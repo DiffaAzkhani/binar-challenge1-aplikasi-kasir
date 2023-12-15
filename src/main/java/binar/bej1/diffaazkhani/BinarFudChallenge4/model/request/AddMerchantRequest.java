@@ -6,12 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class CreateOrderRequest {
-    private Long userId;
-    private Long productId;
-    private Long quantity;
-    private String destinationAddress;
+public class AddMerchantRequest {
+    private Long merchantId;
+
+    private String merchantName;
+
+    private String merchantLocation;
+
+    private boolean open;
 }

@@ -4,6 +4,7 @@ import binar.bej1.diffaazkhani.BinarFudChallenge4.model.OrderDetailModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.OrderModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.request.CreateOrderRequest;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.OrderDetailResponse;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.OrderResponse;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.OrderDetailRepository;
@@ -12,11 +13,14 @@ import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.ProductRepository;
 import binar.bej1.diffaazkhani.BinarFudChallenge4.repository.UsersRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -34,25 +38,22 @@ public class OrderServiceImpl implements OrderService {
     private OrderDetailRepository orderDetailRepository;
 
     @Override
-    public OrderModel saveOrder(Long userId, Long productId, Integer quantity, String destinationAddress) {
-        log.info("Creating order for user with ID: {}", userId);
+    public OrderResponse saveOrder(CreateOrderRequest request) {
+        log.info("Creating order for user with ID: {}", request.getUserId());
 
-        // Mendapatkan dan melakukan pengecekan pengguna berdasarkan userId
-        UsersModel user = usersRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User dengan ID " + userId + " tidak ditemukan"));
+        UsersModel user = usersRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User dengan ID " + request.getUserId() + " tidak ditemukan"));
 
         log.info("User found: {}", user.getUsername());
 
-        // Mendapatkancd dan melakukan pengecekan produk berdasarkan productId
-        ProductModel product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Produk dengan ID " + productId + " tidak ditemukan"));
+        ProductModel product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produk dengan ID " + request.getProductId() + " tidak ditemukan"));
 
         log.info("Product found: {}", product.getProductName());
 
-        // Set properti order yang diperlukan
         OrderModel order = OrderModel.builder()
                 .orderTime(new Date())
-                .destinationAddress(destinationAddress)
+                .destinationAddress(request.getDestinationAddress())
                 .completed(false)
                 .users(user)
                 .orderDetails(new ArrayList<>())
@@ -60,23 +61,41 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Order created: {}", order);
 
-        // Set properti orderDetail yang diperlukan
         OrderDetailModel orderDetail = OrderDetailModel.builder()
-                .quantity(quantity)
-                .totalPrice(product.getPrice() * quantity)
+                .quantity(request.getQuantity())
+                .totalPrice(product.getPrice() * request.getQuantity())
                 .product(product)
                 .order(order)
                 .build();
 
         log.info("Order detail created: {}", orderDetail);
 
-        // Menyimpan Order dan OrderDetail ke database
         orderRepository.save(order);
         orderDetailRepository.save(orderDetail);
 
         log.info("Order saved successfully");
 
-        return order;
+        return toOrderResponse(order);
+    }
+
+    public static OrderResponse toOrderResponse(OrderModel order) {
+        return OrderResponse.builder()
+                .orderTime(order.getOrderTime())
+                .destinationAddress(order.getDestinationAddress())
+                .completed(order.isCompleted())
+                .detailOrder(order.getOrderDetails()
+                        .stream()
+                        .map(OrderServiceImpl::toOrderDetailResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    private static OrderDetailResponse toOrderDetailResponse(OrderDetailModel orderDetail) {
+        return OrderDetailResponse.builder()
+                .quantity(orderDetail.getQuantity())
+                .totalPrice(orderDetail.getTotalPrice())
+                .productName(orderDetail.getProduct().getProductName())
+                .build();
     }
 
     @Override
@@ -89,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
         // Set properti orderResponse yang diperlukan
         for (OrderModel orderModel : orderList) {
             OrderResponse orderResponse = new OrderResponse();
-            orderResponse.setDate(orderModel.getOrderTime());
+            orderResponse.setOrderTime(orderModel.getOrderTime());
             orderResponse.setDestinationAddress(orderModel.getDestinationAddress());
             orderResponse.setCompleted(orderModel.isCompleted());
 

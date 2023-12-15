@@ -5,6 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -18,15 +19,15 @@ public class JwtUtils {
     @Value("${jwt.expiration.ms}")
     private int jwtExpirationMs;
 
-//    public String generateJwtToken(Authentication authentication) {
-//        UsersDetailsImpl userPrincipal = (UsersDetailsImpl) authentication.getPrincipal();
-//        return Jwts.builder()
-//                .setSubject(userPrincipal.getUsername())
-//                .setIssuedAt(new Date())
-//                .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
-//                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-//                .compact();
-//    }
+    public String generateJwtToken(Authentication authentication) {
+        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        return Jwts.builder()
+                .setSubject(userPrincipal.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
 
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parser()
