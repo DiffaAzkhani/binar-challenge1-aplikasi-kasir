@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(DeleteUserRequest request) {
         log.info("Menghapus pengguna dengan username: {}", request.getUsername());
 
@@ -42,9 +44,9 @@ public class UsersServiceImpl implements UsersService {
             throw new RuntimeException("Pengguna dengan username " + request.getUsername() + " tidak ditemukan");
         }
     }
-
-
+    
     @Override
+    @Transactional
     public UserResponse updateUser(UpdateUserRequest request) {
         log.info("Memperbarui pengguna dengan usename: {}", request.getUsername());
 
