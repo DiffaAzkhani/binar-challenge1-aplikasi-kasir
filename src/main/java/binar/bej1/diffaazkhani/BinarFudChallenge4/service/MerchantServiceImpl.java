@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class MerchantServiceImpl implements MerchantService {
     private MerchantRepository merchantRepository;
 
     @Override
+    @Transactional
     public MerchantResponse addMerchant(AddMerchantRequest request) {
         MerchantModel merchantModel = MerchantModel.builder()
                 .merchantName(request.getMerchantName())
@@ -36,6 +38,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    @Transactional
     public void deleteMerchantByMerchantId(Long merchantId) {
         MerchantModel merchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> {
@@ -51,6 +54,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    @Transactional
     public MerchantResponse updateMerchant(Long id, UpdateMerchantRequest request) {
 
         MerchantModel merchant = merchantRepository.findById(id)
@@ -79,6 +83,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    @Transactional
     public MerchantResponse getMerchant(Long id) {
         MerchantModel merchant = merchantRepository.findById(id)
                 .orElseThrow(() -> {
@@ -90,6 +95,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    @Transactional
     public List<MerchantResponse> getAllMerchantIsOpen() {
         log.info("Mengambil daftar Merchant dengan status OPEN");
         Optional<List<MerchantModel>> openMerchantsOptional = Optional.ofNullable(merchantRepository.findOpenMerchants());

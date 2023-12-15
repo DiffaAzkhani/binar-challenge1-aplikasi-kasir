@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderDetailRepository orderDetailRepository;
 
     @Override
+    @Transactional
     public OrderResponse saveOrder(CreateOrderRequest request) {
         log.info("Creating order for user with ID: {}", request.getUserId());
 
@@ -99,20 +101,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public List<OrderResponse> getListOrder(Long userId) {
         log.info("Mengambil daftar pesanan untuk user dengan ID: {}", userId);
         List<OrderModel> orderList = orderRepository.findOrderByUserId(userId);
 
         List<OrderResponse> orderResponseList = new ArrayList<>();
 
-        // Set properti orderResponse yang diperlukan
         for (OrderModel orderModel : orderList) {
             OrderResponse orderResponse = new OrderResponse();
             orderResponse.setOrderTime(orderModel.getOrderTime());
             orderResponse.setDestinationAddress(orderModel.getDestinationAddress());
             orderResponse.setCompleted(orderModel.isCompleted());
 
-            // Set properti orderDetailResponse yang diperlukan
             List<OrderDetailResponse> orderDetailResponseList = new ArrayList<>();
             for (OrderDetailModel orderDetailModel : orderModel.getOrderDetails()) {
                 OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
@@ -120,11 +121,9 @@ public class OrderServiceImpl implements OrderService {
                 orderDetailResponse.setTotalPrice(orderDetailModel.getTotalPrice());
                 orderDetailResponse.setProductName(orderDetailModel.getProduct().getProductName());
 
-                // Menambahkan orderDetailResponse ke dalam list
                 orderDetailResponseList.add(orderDetailResponse);
             }
-
-            // Mengatur orderDetailResponse ke dalam OrderResponse
+            
             orderResponse.setDetailOrder(orderDetailResponseList);
             orderResponseList.add(orderResponse);
         }

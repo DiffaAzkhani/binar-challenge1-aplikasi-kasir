@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class ProductServiceImpl implements ProductService {
     private MerchantRepository merchantRepository;
 
     @Override
+    @Transactional
     public ProductResponse addProduct(AddProductRequest request) {
         log.info("Menambahkan produk: {}", request.getProductName());
 
@@ -50,6 +52,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
         log.info("Menghapus produk dengan ID: {}", id);
 
@@ -59,6 +62,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse updateProduct(Long id, UpdateProductRequest request) {
         log.info("Mengupdate produk: {}", id);
 
@@ -70,6 +74,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse getProduct(Long id) {
         log.info("Mengambil produk : {}", id);
 
@@ -80,6 +85,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public List<ProductResponse> getAllProducts(Long merchantId) {
 
         MerchantModel merchantModel = merchantRepository.findById(merchantId)
