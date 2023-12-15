@@ -44,8 +44,7 @@ public class UsersServiceImpl implements UsersService {
             throw new RuntimeException("Pengguna dengan username " + request.getUsername() + " tidak ditemukan");
         }
     }
-
-
+    
     @Override
     @Transactional
     public UserResponse updateUser(UpdateUserRequest request) {
