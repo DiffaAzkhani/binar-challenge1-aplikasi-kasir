@@ -2,6 +2,7 @@ package binar.bej1.diffaazkhani.BinarFudChallenge4.model.response;
 
 import binar.bej1.diffaazkhani.BinarFudChallenge4.model.UsersModel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
@@ -13,9 +14,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Builder
 public class UserResponse implements UserDetails {
 
     private Long id;

@@ -1,10 +1,11 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.model.response;
 
-import binar.bej1.diffaazkhani.BinarFudChallenge4.model.ProductModel;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
