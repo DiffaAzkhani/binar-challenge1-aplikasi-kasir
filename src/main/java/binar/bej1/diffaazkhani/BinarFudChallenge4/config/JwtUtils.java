@@ -1,11 +1,11 @@
 package binar.bej1.diffaazkhani.BinarFudChallenge4.config;
 
+import binar.bej1.diffaazkhani.BinarFudChallenge4.model.response.UserResponse;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -20,7 +20,7 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        UserResponse userPrincipal = (UserResponse) authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
@@ -41,7 +41,7 @@ public class JwtUtils {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
             return true;
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Cannot validate jwt token: {}", e.getMessage());
         }
         return false;

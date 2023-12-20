@@ -11,7 +11,7 @@ public interface UsersService extends UserDetailsService {
 
     void deleteUser(DeleteUserRequest request);
 
-    UserResponse updateUser(UpdateUserRequest request);
+    UserResponse updateUser(String username, UpdateUserRequest request);
 
 }
 

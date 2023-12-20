@@ -21,12 +21,12 @@ public class UserController {
 
     @Operation(summary = "Update user data")
     @PutMapping(
-            value = "/update-user",
+            value = "/update-user/{username}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Response<UserResponse> updateUser(@RequestBody UpdateUserRequest request) {
-        UserResponse userResponse = usersService.updateUser(request);
+    public Response<UserResponse> updateUser(@PathVariable String username, @RequestBody UpdateUserRequest request) {
+        UserResponse userResponse = usersService.updateUser(username, request);
 
         return Response.<UserResponse>builder()
                 .code(HttpStatus.CREATED.value())
@@ -37,10 +37,11 @@ public class UserController {
 
     @Operation(summary = "Delete user")
     @DeleteMapping(
-            value = "/delete-user/{userId}",
+            value = "/delete-user",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Response<String> deleteUser(@PathVariable DeleteUserRequest request) {
+    public Response<String> deleteUser(@RequestBody DeleteUserRequest request) {
         usersService.deleteUser(request);
 
         return Response.<String>builder()

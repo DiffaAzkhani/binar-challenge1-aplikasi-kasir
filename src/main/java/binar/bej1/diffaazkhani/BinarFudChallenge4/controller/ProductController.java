@@ -71,7 +71,7 @@ public class ProductController {
 
     @Operation(summary = "Get product")
     @GetMapping(
-            value = "/get-product/{merchantId}",
+            value = "/get-product/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public Response<ProductResponse> getProduct(@PathVariable Long id) {

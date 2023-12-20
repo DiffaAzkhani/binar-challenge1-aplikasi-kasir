@@ -17,7 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Slf4j
 @Configuration
@@ -49,16 +48,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .oauth2Login().successHandler((request, response, authentication) -> {
-                    log.info("logged in as user : {}", authentication.getPrincipal());
-                    if (!loginRegisterService.loginOauth2User(authentication).isPresent()) {
-                        loginRegisterService.registerOauth2User(authentication);
-                    }
-                    ;
-                })
-                .and()
-                .csrf(c -> c
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+//                .oauth2Login().successHandler((request, response, authentication) -> {
+//                    log.info("logged in as user : {}", authentication.getPrincipal());
+//                    if (!loginRegisterService.loginOauth2User(authentication).isPresent()) {
+//                        loginRegisterService.registerOauth2User(authentication);
+//                    }
+//                    ;
+//                })
+//                .and()
+//                .csrf(c -> c
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .logout(l -> l.logoutSuccessUrl("/"));
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
